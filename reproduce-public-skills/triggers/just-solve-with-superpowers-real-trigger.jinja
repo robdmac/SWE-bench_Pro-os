@@ -1,0 +1,11 @@
+Before you do anything else: read `/tmp/agent_home/.claude/skills/superpowers/skills/using-superpowers/SKILL.md`{% if not is_continuation %} and follow its workflow for the entire task{% else %} and continue following its workflow{% endif %}. The Superpowers framework is mounted into your environment at `/tmp/agent_home/.claude/skills/superpowers/` and is mandatory for this task — it specifies a complete software-development methodology with multiple skills (brainstorming, test-driven-development, executing-plans, etc.) you should consult as needed. Read additional skill files from `skills/<skill-name>/SKILL.md` when their phase is relevant.
+
+Implement a program that 100% solves the specification. That is all you need to do.
+{% if not is_continuation -%}
+Use a virtual environment and ensure that a `requirements.txt` is present with any dependencies you need to solve the problem.
+{% else -%}
+Keep using the same virtual environment you started with, update `requirements.txt` with any new dependencies you need.
+{% endif -%}
+
+Your task is:
+{{ spec.strip() }}

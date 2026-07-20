@@ -1,0 +1,8 @@
+A `referencer` skill is available at `/tmp/agent_home/.agents/skills/referencer/SKILL.md`. Read it now to learn the marker policy, then follow that policy for this task. The skill maintains a code-linked reference trail — `REF:<id>` markers in code plus a `REFERENCES.md` ledger — capturing why load-bearing code exists, the evidence behind decisions, and how it changes across spec revisions.
+
+Engagement is DEFERRED and edit-by-edit (per the skill's own policy): do not pre-read REFERENCES.md, do not pre-scan for markers, and do not add markers prophylactically. Add a `REF:` marker only when an edit is genuinely load-bearing per the policy in SKILL.md, and use `ref show REF:<id>` for on-demand lookup rather than scanning the ledger.
+
+Install the `ref` CLI wrapper now so it is on PATH before you first need it. Write it UNCONDITIONALLY (overwrite — do NOT guard with `which ref`, which can leave a stale shim), then export PATH:
+
+    mkdir -p "$HOME/.local/bin" && printf '#!/bin/sh\nexec python /tmp/agent_home/.agents/skills/referencer/scripts/ref.py "$@"\n' > "$HOME/.local/bin/ref" && chmod +x "$HOME/.local/bin/ref"
+    export PATH="$HOME/.local/bin:$PATH"

@@ -1,0 +1,16 @@
+#!/bin/bash
+# Extend refv2 + evdaltv2 from 200 -> full 731: remaining batches e..o (50 at a time).
+# Interleaved per batch so both arms advance together. Resumable, quota-aware.
+cd /home/rob/swebench/swebench_pro || exit 1
+PY=/home/rob/swebench/.venv/bin/python
+LOG=runs/_reeval/v2_full_run.log
+for b in e f g h i j k l m n o; do
+  for arm in refv2 evdaltv2; do
+    while [ -f runs/QUOTA_STOP.txt ]; do
+      echo "[$(date '+%F %T')] QUOTA_STOP -> waiting 1h" >> "$LOG"; rm -f runs/QUOTA_STOP.txt; sleep 3600
+    done
+    echo "[$(date '+%F %T')] === $arm batch '$b' ===" >> "$LOG"
+    SWEPRO_BATCH="$b" $PY run_arm.py "$arm" >> "$LOG" 2>&1
+  done
+done
+echo "[$(date '+%F %T')] V2 FULL RUN COMPLETE" >> "$LOG"

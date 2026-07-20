@@ -1,0 +1,11 @@
+Before you do anything else: read `/tmp/agent_home/.claude/skills/karpathy-guidelines/SKILL.md`{% if not is_continuation %} and follow its guidelines for the entire task{% else %} and continue following its guidelines{% endif %}. The skill is mounted into your environment and is mandatory for this task — it specifies four behavioral guidelines (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution) for LLM-assisted coding, derived from Andrej Karpathy's observations on common pitfalls.
+
+Implement a program that 100% solves the specification. That is all you need to do.
+{% if not is_continuation -%}
+Use a virtual environment and ensure that a `requirements.txt` is present with any dependencies you need to solve the problem.
+{% else -%}
+Keep using the same virtual environment you started with, update `requirements.txt` with any new dependencies you need.
+{% endif -%}
+
+Your task is:
+{{ spec.strip() }}

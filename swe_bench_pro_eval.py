@@ -378,7 +378,7 @@ def eval_with_docker(patch, sample, output_dir, dockerhub_username, scripts_dir,
         dockerhub_image_uri = get_dockerhub_image_uri(uid, dockerhub_username, sample.get("repo", ""))
         print(f"Using Docker Hub image: {dockerhub_image_uri}")
 
-        client = docker.from_env()
+        client = docker.from_env(timeout=3600)  # default is 60s -> ReadTimeout on slow (Go/CPU-capped) test suites -> missing output.json
         try:
             if docker_platform:
                 client.images.pull(dockerhub_image_uri, platform=docker_platform)
@@ -401,7 +401,23 @@ def eval_with_docker(patch, sample, output_dir, dockerhub_username, scripts_dir,
             "remove": True,
             "entrypoint": "/bin/bash",  # Override image entrypoint
             "command": ["-c", "bash /workspace/entryscript.sh"],
+            # CPU cap (SWEPRO_EVAL_CPUS, default 2): heavy Go/JS suites otherwise saturate the box
+            # under concurrency. NOTE: too tight a cap makes heavy suites exceed the run_script's
+            # own budget -> no output.json -> false "unresolved". Set SWEPRO_EVAL_CPUS=0 to uncap
+            # (use with num_workers=1). GOMAXPROCS follows SWEPRO_GOMAXPROCS (default 2).
+            # SWEPRO_SERIAL_PYTEST forces xdist to 0 workers (deterministic serial) for
+            # parallel-sensitive repos (ansible auto-enables -n auto -> flaky order-dependent results).
+            "environment": {"GOMAXPROCS": os.environ.get("SWEPRO_GOMAXPROCS", "2"),
+                "GOFLAGS": f"-p={os.environ.get('SWEPRO_GOMAXPROCS','2')}",
+                **({"PYTEST_ADDOPTS": "-n0"} if os.environ.get("SWEPRO_SERIAL_PYTEST") else {})},
         }
+        _cpus = int(os.environ.get("SWEPRO_EVAL_CPUS", "2"))
+        if _cpus > 0:
+            run_kwargs["nano_cpus"] = _cpus * 1_000_000_000
+        # Relative CPU weight (SWEPRO_CPU_SHARES, default 256 vs docker default 1024): only bites
+        # under contention, so eval containers yield to interactive/other host work when the box is
+        # busy but take full nano_cpus when it's idle. Doesn't change pass/fail, only scheduling.
+        run_kwargs["cpu_shares"] = int(os.environ.get("SWEPRO_CPU_SHARES", "256"))
         if block_network:
             run_kwargs["network_mode"] = "none"
         # Optional platform override (useful on Apple Silicon)

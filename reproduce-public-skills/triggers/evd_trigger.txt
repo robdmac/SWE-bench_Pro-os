@@ -1,0 +1,6 @@
+Before you do anything else: read `/tmp/agent_home/.agents/skills/evidencia/SKILL.md` and follow its workflow for the entire task. The skill is mounted into your environment and is mandatory for this task — it specifies how to maintain an EVIDENCE.md ledger of per-claim epistemic state (observed/retrieved/inferred/simulated/assumed), so that load-bearing decisions are tagged with how you know them, and `assumed` claims are tracked as fair-game-to-revise when new information arrives.
+
+Also install the `evi` CLI wrapper now (so the skill's tooling works), then put it on PATH:
+
+    which evi >/dev/null 2>&1 || { mkdir -p "$HOME/.local/bin" && printf '#!/bin/sh\nexec python /tmp/agent_home/.agents/skills/evidencia/scripts/evi.py "$@"\n' > "$HOME/.local/bin/evi" && chmod +x "$HOME/.local/bin/evi"; }
+    export PATH="$HOME/.local/bin:$PATH"
